@@ -1,0 +1,19 @@
+name = "agent-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# KV namespace for storing contact submissions
+kv_namespaces = [
+  { binding = "CONTACT_SUBMISSIONS", id = "a00295637fd44ada8f3b3ecac0647700" }
+]
+
+[vars]
+NOTIFY_EMAIL = "inbox@bilawal.net"
+FROM_EMAIL = "onboarding@resend.dev"
+FROM_NAME = "Agent Dashboard"
+ALLOWED_ORIGIN = "https://agent.hyperflash.uk"
+RESEND_API_KEY = "re_8thKDmar_btCuLAVVhczgfjd8QxvW8a3a"
+
+# Routes - deploy to agent-api.hyperflash.uk
+# You'll need to add a CNAME: agent-api -> your-worker.your-subdomain.workers.dev
+# Or use a custom domain in the CF dashboard

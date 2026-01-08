@@ -1,0 +1,14 @@
+{
+  "name": "agent-api",
+  "version": "1.0.0",
+  "description": "Contact form API for Agent Dashboard",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
