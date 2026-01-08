@@ -1,6 +1,6 @@
 /**
  * Agent Dashboard Contact Form API
- * Cloudflare Worker with KV storage and MailChannels email
+ * Cloudflare Worker with KV storage and Resend email delivery
  */
 
 export default {
@@ -109,7 +109,7 @@ async function handleContactForm(request, env) {
     if (submissionIds.length > 1000) submissionIds.pop();
     await env.CONTACT_SUBMISSIONS.put(listKey, JSON.stringify(submissionIds));
 
-    // Send email notification via MailChannels
+    // Send email notification via Resend
     const emailSent = await sendEmail(env, sanitizedData, submissionId);
 
     return new Response(JSON.stringify({
