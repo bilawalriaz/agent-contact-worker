@@ -23,20 +23,26 @@ export default {
 
     if (url.pathname === '/health') {
       return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
       });
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
     });
   }
 };
 
-function corsHeaders(env) {
+function corsHeaders(request, env) {
+  const origin = request.headers.get('Origin') || '';
+  const allowedOrigins = (env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
+
+  // Check if origin is in allowed list
+  const allowedOrigin = allowedOrigins.includes(origin) ? origin : (allowedOrigins[0] || '*');
+
   return {
-    'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
@@ -45,7 +51,7 @@ function corsHeaders(env) {
 function handleCORS(request, env) {
   return new Response(null, {
     status: 204,
-    headers: corsHeaders(env)
+    headers: corsHeaders(request, env)
   });
 }
 
@@ -58,7 +64,7 @@ async function handleContactForm(request, env) {
       console.error('JSON parse error:', parseError.message);
       return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
       });
     }
 
@@ -67,7 +73,7 @@ async function handleContactForm(request, env) {
     if (!name || !email || !message) {
       return new Response(JSON.stringify({ error: 'Missing required fields: name, email, message' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
       });
     }
 
@@ -75,7 +81,7 @@ async function handleContactForm(request, env) {
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       return new Response(JSON.stringify({ error: 'Invalid email format' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
       });
     }
 
@@ -119,14 +125,14 @@ async function handleContactForm(request, env) {
       emailSent
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
     });
 
   } catch (error) {
     console.error('Contact form error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
     });
   }
 }
@@ -141,7 +147,7 @@ async function handleGetSubmissions(request, env) {
   if (!authKey || authKey.length < 16) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
     });
   }
 
@@ -166,14 +172,14 @@ async function handleGetSubmissions(request, env) {
       total: submissionIds.length,
       submissions
     }), {
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
     });
 
   } catch (error) {
     console.error('Get submissions error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(request, env) }
     });
   }
 }

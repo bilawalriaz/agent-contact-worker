@@ -11,7 +11,7 @@ kv_namespaces = [
 NOTIFY_EMAIL = "inbox@bilawal.net"
 FROM_EMAIL = "onboarding@resend.dev"
 FROM_NAME = "Agent Dashboard"
-ALLOWED_ORIGIN = "https://agent.hyperflash.uk"
+ALLOWED_ORIGINS = "https://agent.hyperflash.uk,https://bilawal-blog.pages.dev,https://bilawal.net"
 RESEND_API_KEY = "re_8thKDmar_btCuLAVVhczgfjd8QxvW8a3a"
 
 # Routes - deploy to agent-api.hyperflash.uk
