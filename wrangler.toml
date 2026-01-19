@@ -8,11 +8,18 @@ kv_namespaces = [
 ]
 
 [vars]
+EMAIL_PROVIDER = "resend"
 NOTIFY_EMAIL = "inbox@bilawal.net"
 FROM_EMAIL = "onboarding@resend.dev"
 FROM_NAME = "Agent Dashboard"
 ALLOWED_ORIGINS = "https://agent.hyperflash.uk,https://bilawal-blog.pages.dev,https://bilawal.net"
+
+# For Resend (default provider)
 RESEND_API_KEY = "re_8thKDmar_btCuLAVVhczgfjd8QxvW8a3a"
+
+# For ZeptoMail (uncomment to use)
+# EMAIL_PROVIDER = "zeptomail"
+# ZEPTOMAIL_API_KEY = "your-zeptomail-api-key"
 
 # Routes - deploy to agent-api.hyperflash.uk
 # You'll need to add a CNAME: agent-api -> your-worker.your-subdomain.workers.dev

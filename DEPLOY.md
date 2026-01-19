@@ -127,7 +127,29 @@ wrangler tail
 ## Environment Variables
 
 These are set in `wrangler.toml` under `[vars]`:
+
+**Common Variables:**
+- `EMAIL_PROVIDER` - Choose between "resend" (default) or "zeptomail"
 - `NOTIFY_EMAIL` - Email to receive notifications (bilawalriaz@gmail.com)
 - `FROM_EMAIL` - Sender email address (noreply@hyperflash.uk)
 - `FROM_NAME` - Sender name (Agent Dashboard)
 - `ALLOWED_ORIGIN` - CORS origin (https://agent.hyperflash.uk)
+
+**For Resend:**
+- `RESEND_API_KEY` - Your Resend API key
+
+**For ZeptoMail:**
+- `ZEPTOMAIL_API_KEY` - Your ZeptoMail API key
+
+### Getting API Keys
+
+**Resend:**
+1. Go to https://resend.com/api-keys
+2. Create a new API key
+3. Add `RESEND_API_KEY` to wrangler.toml
+
+**ZeptoMail:**
+1. Go to https://www.zoho.com/zeptomail/
+2. Sign up and create a mail channel
+3. Get your API key from the settings
+4. Add `ZEPTOMAIL_API_KEY` to wrangler.toml and set `EMAIL_PROVIDER` to `zeptomail`

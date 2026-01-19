@@ -185,6 +185,18 @@ async function handleGetSubmissions(request, env) {
 }
 
 async function sendEmail(env, data, submissionId) {
+  const provider = (env.EMAIL_PROVIDER || 'resend').toLowerCase();
+
+  switch (provider) {
+    case 'zeptomail':
+      return sendEmailViaZeptoMail(env, data, submissionId);
+    case 'resend':
+    default:
+      return sendEmailViaResend(env, data, submissionId);
+  }
+}
+
+async function sendEmailViaResend(env, data, submissionId) {
   try {
     const textContent = [
       'New contact form submission from Agent Dashboard',
@@ -233,7 +245,69 @@ async function sendEmail(env, data, submissionId) {
       return false;
     }
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('Resend email send error:', error);
+    return false;
+  }
+}
+
+async function sendEmailViaZeptoMail(env, data, submissionId) {
+  try {
+    const textContent = [
+      'New contact form submission from Agent Dashboard',
+      '',
+      '---',
+      'Name: ' + data.name,
+      'Email: ' + data.email,
+      '---',
+      '',
+      'Message:',
+      data.message,
+      '',
+      '---',
+      'Metadata:',
+      '- Submission ID: ' + submissionId,
+      '- Timestamp: ' + data.timestamp,
+      '- IP: ' + data.ip,
+      '- Country: ' + data.country,
+      '',
+      '---',
+      'This email was sent from agent.hyperflash.uk'
+    ].join('\n');
+
+    const htmlContent = `<!DOCTYPE html><html><head><style>body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.6;color:#1a1a1a}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:24px;border-radius:12px 12px 0 0}.header h1{margin:0;font-size:20px}.content{background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none}.field{margin-bottom:16px}.field-label{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;margin-bottom:4px}.field-value{font-size:16px;color:#1a1a1a}.message-box{background:#f9fafb;padding:16px;border-radius:8px;margin:16px 0;white-space:pre-wrap}.metadata{background:#f3f4f6;padding:16px;border-radius:0 0 12px 12px;font-size:12px;color:#6b7280}.metadata-item{margin-bottom:4px}a{color:#f97316}</style></head><body><div class="container"><div class="header"><h1>New Contact Form Submission</h1></div><div class="content"><div class="field"><div class="field-label">From</div><div class="field-value">${escapeHtml(data.name)}</div></div><div class="field"><div class="field-label">Email</div><div class="field-value"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></div></div><div class="field"><div class="field-label">Message</div><div class="message-box">${escapeHtml(data.message)}</div></div></div><div class="metadata"><div class="metadata-item"><strong>ID:</strong> ${submissionId}</div><div class="metadata-item"><strong>Time:</strong> ${data.timestamp}</div><div class="metadata-item"><strong>Location:</strong> ${data.country}</div><div class="metadata-item"><strong>IP:</strong> ${data.ip}</div></div></div></body></html>`;
+
+    const response = await fetch('https://api.zeptomail.com/v1.1/email/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Zoho-enczapikey ' + env.ZEPTOMAIL_API_KEY,
+      },
+      body: JSON.stringify({
+        from: {
+          address: env.FROM_EMAIL,
+          name: env.FROM_NAME
+        },
+        to: [{
+          email_address: {
+            address: env.NOTIFY_EMAIL,
+            name: 'Notification'
+          }
+        }],
+        subject: '[Agent] New contact from ' + data.name,
+        textbody: textContent,
+        htmlbody: htmlContent,
+      }),
+    });
+
+    if (response.ok) {
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('ZeptoMail error:', response.status, errorText);
+      return false;
+    }
+  } catch (error) {
+    console.error('ZeptoMail email send error:', error);
     return false;
   }
 }
